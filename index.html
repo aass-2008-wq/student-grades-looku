@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>استعلام درجات الطلاب - مدرسة الإمام الشوكاني</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#071a2a;
+      --bg2:#0a2f4c;
+      --stroke:rgba(255,255,255,.14);
+      --text:#eef6ff;
+      --muted:rgba(238,246,255,.72);
+      --gold:#d6b35f;
+      --shadow:0 18px 46px rgba(0,0,0,.38);
+      --radius:18px;
+
+      --excellent:#32d787;
+      --verygood:#d6b35f;
+      --good:#ffc857;
+      --needs:#ff6b6b;
+      --absent:#8aa4b6;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Tajawal",system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 700px at 15% 10%, rgba(214,179,95,.14) 0%, transparent 55%),
+        radial-gradient(800px 560px at 90% 20%, rgba(54,166,184,.18) 0%, transparent 55%),
+        linear-gradient(160deg,var(--bg1),var(--bg2));
+    }
+
+    .wrap{width:min(980px,100%)}
+
+    .header{
+      padding:18px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.06));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .header::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background: radial-gradient(700px 280px at 20% 0%, rgba(214,179,95,.20) 0%, transparent 60%);
+      pointer-events:none;
+    }
+
+    .top-logo{
+      position:relative;
+      z-index:1;
+      display:flex;
+      justify-content:center;
+      margin-bottom:10px;
+    }
+    .top-logo img{
+      width:92px;
+      height:92px;
+      object-fit:contain;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.35));
+      border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      padding:10px;
+    }
+
+    .titles{
+      position:relative;
+      z-index:1;
+      text-align:center;
+      margin-bottom:10px;
+    }
+    .titles h1{margin:0;font-size:20px;font-weight:800}
+    .titles p{margin:6px 0 0;color:var(--muted);font-size:14px;font-weight:500}
+
+    .meta{
+      position:relative;
+      z-index:1;
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .meta .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .meta b{color:var(--gold)}
+
+    .card{
+      margin-top:16px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-inner{padding:18px}
+
+    .row{
+      display:grid;
+      grid-template-columns: 1.1fr 1fr auto;
+      gap:12px;
+      align-items:end;
+    }
+    @media (max-width:780px){ .row{grid-template-columns:1fr} }
+
+    label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+    .input, select{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+      font-size:16px;
+    }
+    .input::placeholder{color:rgba(238,246,255,.5)}
+
+    .btn{
+      padding:12px 16px;
+      border-radius:14px;
+      border:1px solid rgba(214,179,95,.55);
+      background:linear-gradient(180deg,rgba(214,179,95,.92),rgba(214,179,95,.74));
+      color:#1d1403;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 10px 22px rgba(214,179,95,.20);
+      transition:.15s transform ease;
+      white-space:nowrap;
+    }
+    .btn:active{transform:scale(.98)}
+
+    .hint{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.9;
+      text-align:center;
+    }
+
+    .result{
+      margin-top:16px;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      display:none;
+    }
+    .result.show{display:block}
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:13px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+    }
+    .b-ex{border-color:rgba(50,215,135,.45)}
+    .b-vg{border-color:rgba(214,179,95,.55)}
+    .b-gd{border-color:rgba(255,200,87,.55)}
+    .b-ns{border-color:rgba(255,107,107,.55)}
+    .b-ab{border-color:rgba(138,164,182,.55)}
+
+    .grid2{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width:780px){.grid2{grid-template-columns:1fr}}
+
+    .field{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.20);
+    }
+    .field .k{color:var(--muted);font-size:12px;margin-bottom:6px}
+    .field .v{font-size:16px;font-weight:800}
+
+    .msg{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      color:rgba(238,246,255,.92);
+      line-height:1.95;
+      background:rgba(0,0,0,.14);
+      white-space:pre-line;
+    }
+
+    .footer{
+      margin-top:14px;
+      text-align:center;
+      color:rgba(238,246,255,.6);
+      font-size:12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="top-logo">
+        <img src="https://i.postimg.cc/PJrNMyG5/O-U-O-U-U-O-U-U-4.png" alt="شعار المدرسة">
+      </div>
+
+      <div class="titles">
+        <h1>برنامج الاستعلام عن درجات الطلاب</h1>
+        <p>بالهوية الوطنية — مدرسة الإمام الشوكاني الابتدائية</p>
+      </div>
+
+      <div class="meta">
+        <div class="pill">اسم المعلم: <b>مقرن المطيري</b></div>
+        <div class="pill">مدير المدرسة: <b>توفيق العقيلي</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="row">
+          <div>
+            <label for="classSel">اختر الفصل</label>
+            <select id="classSel">
+              <option value="c1">سادس (1)</option>
+              <option value="c2">سادس (2)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="nid">رقم الهوية الوطنية</label>
+            <input id="nid" class="input" inputmode="numeric" maxlength="10" placeholder="اكتب رقم الهوية (10 أرقام)" />
+          </div>
+
+          <div>
+            <button class="btn" id="btn">استعلام</button>
+          </div>
+        </div>
+
+        <div class="hint">
+          التصنيف:
+          <b>17 فأعلى ممتاز</b> |
+          <b>14–16 جيد جدًا</b> |
+          <b>13 جيد</b> |
+          <b>12 فأقل يحتاج تحسين</b> |
+          <b>غائب</b>
+        </div>
+
+        <div id="res" class="result" aria-live="polite"></div>
+
+        <div class="footer">© 2026 — برمجة وتنفيذ الأستاذ مقرن المطيري</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ✅ البيانات كما أرسلتها (بحث برقم الهوية)
+  const class1 = [
+    {"id":"1168642740","name":"أسامة يوسف العقيلي","score":20},
+    {"id":"1170460776","name":"جزاء بن ضيف الله المطيري","status":"absent"},
+    {"id":"1170277154","name":"جواد بن عبدالله العويد","score":19},
+    {"id":"1194393508","name":"سلمان بن محمد السعيد","score":12},
+    {"id":"1174705549","name":"سليمان بن إبراهيم الحايك","score":20},
+    {"id":"1169763651","name":"صالح بن خالد الناصر","score":17},
+    {"id":"1185084215","name":"صالح بن مبروك المطيري","score":16},
+    {"id":"1169767207","name":"عبدالرحمن بن فهد الحربي","score":20},
+    {"id":"2399977905","name":"عبدالرحمن حسن أحمد","score":14},
+    {"id":"1171024993","name":"عبدالعزيز بن أحمد الزاحم","score":20},
+    {"id":"1165790955","name":"عبدالله بن عبدالعزيز الحواس","score":20},
+    {"id":"0160477791","name":"عزام صابر حمود خالد","score":16},
+    {"id":"2374013668","name":"علي عمر علي عثمان","score":20},
+    {"id":"1168582235","name":"غيث بن بندر الوهيد","score":20},
+    {"id":"1168307427","name":"فواز بن عبدالله الفايز","score":19},
+    {"id":"1168512232","name":"فيصل بن عبدالله الشايع","score":11},
+    {"id":"1170346751","name":"قصي بن صالح الشهباني","score":17},
+    {"id":"1168115929","name":"محمد بن زياد المطيري","score":20},
+    {"id":"1171445479","name":"ناصر بن حسن القويفلي","score":19},
+    {"id":"2368105413","name":"نذير مشعل نذير الشمري","score":16},
+    {"id":"1182476521","name":"يوسف بن سليمان الفراج","score":16}
+  ];
+
+  const class2 = [
+    {"id":"1181528678","name":"راكان بن سليمان الزيد","score":17},
+    {"id":"1168028882","name":"رواف بن عبدالعزيز المطيري","score":20},
+    {"id":"1169805924","name":"زعيم بن فارس المطيري","score":15},
+    {"id":"1169764204","name":"زياد بن محمد المجلاد","score":17},
+    {"id":"1167082948","name":"سعود بن فهد الدهيسان","score":20},
+    {"id":"1177151386","name":"عامر بن أحمد العامر","score":20},
+    {"id":"1172319483","name":"عبدالرحمن بن مطلق الثبيتي","score":17},
+    {"id":"1170188542","name":"عبدالرحمن سلطان الراجح","score":20},
+    {"id":"1169243159","name":"عبدالله بن إبراهيم الصقيل","score":19},
+    {"id":"1168543955","name":"عزام بن عبدالله اللذيذ","score":20},
+    {"id":"1169932884","name":"علي بن فهد الكريشان","score":20},
+    {"id":"1170877607","name":"فهد بن سعد العتيبي","score":10},
+    {"id":"1168336541","name":"فهد بن محمد المطيري","score":13},
+    {"id":"1171144247","name":"ماجد بن سعود العتيبي","score":10},
+    {"id":"1171267618","name":"محمد بن عبدالرحمن القويفلي","score":20},
+    {"id":"1171181249","name":"محمد بن عبدالعزيز المعثم","score":12},
+    {"id":"1169321526","name":"محمد بن عبدالعزيز الغنايم","score":20},
+    {"id":"1170350696","name":"محمد بن عبدالله المطلق","status":"absent"},
+    {"id":"1166311827","name":"محمد بن فهد المطيري","score":17},
+    {"id":"1170437576","name":"مراد بن سليمان المطلق","score":19}
+  ];
+
+  const $ = (id)=>document.getElementById(id);
+  const digitsOnly = (v)=>String(v||"").replace(/\D/g,"");
+
+  function classify(score){
+    if (score >= 17) return {key:"excellent", label:"ممتاز", badge:"b-ex"};
+    if (score >= 14) return {key:"verygood", label:"جيد جدًا", badge:"b-vg"};
+    if (score === 13) return {key:"good", label:"جيد", badge:"b-gd"};
+    return {key:"needs", label:"يحتاج تحسين", badge:"b-ns"};
+  }
+
+  function messageFor(levelKey, name){
+    if(levelKey === "excellent"){
+      return `أحسنت يا ${name}.\nأداء ممتاز ودرجة عالية، شكرًا لاجتهادك واستمرارك وننتظر منك المزيد.`;
+    }
+    if(levelKey === "verygood"){
+      return `عمل رائع يا ${name}.\nمستواك جيد جدًا، استمر بنفس الجدية وستصل للأعلى بإذن الله.`;
+    }
+    if(levelKey === "good"){
+      return `شكرًا لك يا ${name}.\nمستواك جيد، ومع مراجعة بسيطة سترتفع درجتك سريعًا بإذن الله.`;
+    }
+    return `يا ${name}، نقدر محاولتك.\nتحتاج إلى تحسين: راجع ملف المراجعة وتدرب مرة أخرى، وستلاحظ فرقًا واضحًا بإذن الله.`;
+  }
+
+  function renderNotFound(){
+    $("res").className = "result show";
+    $("res").innerHTML = `
+      <div class="badge b-ns">غير موجود</div>
+      <div class="msg">لم يتم العثور على طالب بهذه الهوية في الفصل المحدد.\nتأكد من اختيار الفصل الصحيح وكتابة رقم الهوية (10 أرقام).</div>
+    `;
+  }
+
+  function render(student){
+    const clsName = $("classSel").selectedOptions[0].textContent;
+
+    if(student.status === "absent"){
+      $("res").className = "result show";
+      $("res").innerHTML = `
+        <div class="badge b-ab">الحالة: غائب</div>
+        <div class="grid2">
+          <div class="field"><div class="k">اسم الطالب</div><div class="v">${student.name}</div></div>
+          <div class="field"><div class="k">رقم الهوية</div><div class="v">${student.id}</div></div>
+          <div class="field"><div class="k">الفصل</div><div class="v">${clsName}</div></div>
+          <div class="field"><div class="k">الدرجة</div><div class="v">—</div></div>
+        </div>
+        <div class="msg">تم تسجيل الحالة: غائب.</div>
+      `;
+      return;
+    }
+
+    const score = Number(student.score);
+    const level = classify(score);
+    const msg = messageFor(level.key, student.name);
+
+    $("res").className = "result show";
+    $("res").innerHTML = `
+      <div class="badge ${level.badge}">التقدير: ${level.label}</div>
+      <div class="grid2">
+        <div class="field"><div class="k">اسم الطالب</div><div class="v">${student.name}</div></div>
+        <div class="field"><div class="k">رقم الهوية</div><div class="v">${student.id}</div></div>
+        <div class="field"><div class="k">الفصل</div><div class="v">${clsName}</div></div>
+        <div class="field"><div class="k">الدرجة</div><div class="v">${score}</div></div>
+      </div>
+      <div class="msg">${msg}</div>
+    `;
+  }
+
+  function run(){
+    const nid = digitsOnly($("nid").value);
+    if(nid.length !== 10){
+      $("res").className = "result show";
+      $("res").innerHTML = `
+        <div class="badge b-ns">تنبيه</div>
+        <div class="msg">فضلاً اكتب رقم الهوية الوطنية بشكل صحيح (10 أرقام).</div>
+      `;
+      return;
+    }
+
+    const data = $("classSel").value === "c1" ? class1 : class2;
+    const student = data.find(s => String(s.id) === nid);
+
+    if(!student) renderNotFound();
+    else render(student);
+  }
+
+  $("btn").addEventListener("click", run);
+  $("nid").addEventListener("keydown", (e)=>{ if(e.key==="Enter") run(); });
+</script>
+</body>
+</html>
